@@ -10,7 +10,7 @@ db.createTable()
 #max - korolev
 
 def redirect():
-    root.destroy
+    root.destroy()
     mainWindow()
 
 def check():
