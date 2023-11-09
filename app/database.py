@@ -11,7 +11,6 @@ class DatabaseAuth():
                 database="postgres"
         )
             self.cur = self.connection.cursor()
-            print("Подключение создано")
         except Exception as _ex:
             print("[INFO] Error while working with PostgreSQL", _ex)
             
@@ -20,7 +19,6 @@ class DatabaseAuth():
                 (login TEXT,
                 password TEXT); 
                 ''')
-        print("Таблица создана или нет но функция сработала")
         self.connection.commit()
 
     def insertData(self, name, password):
@@ -38,5 +36,42 @@ class DatabaseAuth():
                 bytes1 = inputData[0][1].encode('utf-8') 
                 return bcrypt.checkpw(bytes1, bytes)
         except:
-            print("Э БЛЯТЬ")
+            print("Something went wrong")
+        self.connection.commit()
+    def createMainTable(self):
+        self.cur.execute('''CREATE TABLE IF NOT EXISTS patients_info
+                (FIO TEXT,
+                Gender TEXT,
+                Date_birth DATE,
+                Address TEXT); 
+                ''')
+        self.connection.commit()
+    def insertPatientsData(self, FIO, Gender, Date, Address):
+        self.cur.execute("INSERT INTO patients_info(FIO, Gender, Date_birth, Address) VALUES ('"+FIO+"', '"+Gender+"', '"+Date+"', '"+Address+"')")
+        self.connection.commit()
+    def createDrugTable(self):
+        self.cur.execute('''CREATE TABLE IF NOT EXISTS drug_info
+                (title TEXT,
+                active_substances TEXT,
+                effect TEXT,
+                method_of_taking TEXT,
+                side_effects TEXT); 
+                ''')
+        self.connection.commit()
+    def insertDrugInfo(self, title, active_substance, effect, meethod_of_taking, side_effects):
+        self.cur.execute("INSERT INTO drug_info(title, active_substances, effect, method_of_taking, side_effects) VALUES ('"+title+"', '"+active_substance+"', '"+effect+"', '"+meethod_of_taking+"', '"+side_effects+"')")
+        self.connection.commit()
+
+    def createCheckTable(self): #Таблица осмотров
+        self.cur.execute('''CREATE TABLE IF NOT EXISTS checking
+                (FIO TEXT,
+                Date DATE,
+                Doc_FIO TEXT,
+                Symptoms TEXT,
+                Drug_title TEXT,
+                diagnosis TEXT); 
+                ''')
+        self.connection.commit()
+    def insertCheckInfo(self, FIO, Date, Doc_FIO, Symptoms, Drug_title, diagnosis):
+        self.cur.execute("INSERT INTO checking(FIO, Date, Doc_FIO, Symptoms, Drug_title, diagnosis) VALUES ('"+FIO+"', '"+Date+"', '"+Doc_FIO+"', '"+Symptoms+"', '"+Drug_title+"', '"+diagnosis+"')")
         self.connection.commit()
