@@ -75,3 +75,14 @@ class DatabaseAuth():
     def insertCheckInfo(self, FIO, Date, Doc_FIO, Symptoms, Drug_title, diagnosis):
         self.cur.execute("INSERT INTO checking(FIO, Date, Doc_FIO, Symptoms, Drug_title, diagnosis) VALUES ('"+FIO+"', '"+Date+"', '"+Doc_FIO+"', '"+Symptoms+"', '"+Drug_title+"', '"+diagnosis+"')")
         self.connection.commit()
+    
+    #Select - выбор пациента, которого внесли до этого
+    def selectPatients(self):
+        self.cur = self.connection.cursor()
+        self.cur.execute("SELECT FIO FROM patients_info")
+        self.connection.commit()
+    def selectAll(self, column_name, searchAsk):
+        self.cur = self.connection.cursor()
+        query = f"SELECT * FROM checking WHERE {column_name} = %s "
+        self.cur.execute(query, searchAsk)
+        self.connection.commit()

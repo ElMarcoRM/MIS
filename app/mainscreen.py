@@ -15,7 +15,7 @@ class mainWindow:
         choose = ttk.Label(self.root, text='Выберите действие:').pack()
         add_patients = ttk.Button(self.root, text='Добавить пациента', command=self.register).pack()
         register_checking = ttk.Button(self.root, text='Зарегистрировать осмотр', command=self.register_osmotr).pack()
-        statistics = ttk.Button(self.root, text='Статистика', command=self.viewAllPatients).pack()
+        statistics = ttk.Button(self.root, text='Посмотреть статистику', command=self.viewAllPatients).pack()
         self.root.mainloop()
     
     def register(self):
@@ -78,21 +78,15 @@ class mainWindow:
         db.createCheckTable()
 
         # выбор пациента, которого внесли в бд до этого
-        db.cur = db.connection.cursor()
-        db.cur.execute("SELECT FIO FROM patients_info")
-        db.connection.commit()
+        db.selectPatients()
         rows = db.cur.fetchall()
         table = [' '.join(inner) for inner in rows]
-        # for row in rows:
-        #     fio = str(row[0])
-        #     fio = fio.replace("{", "").replace("}", "") 
         var = StringVar()
-        choosePatient = ttk.Label(text = "Выберите пациента")
+        choosePatient = ttk.Label(text = "Выберите пациента").pack(anchor=NW)
         combobox=ttk.Combobox(root, textvariable=var)
         combobox['values'] = table
         combobox['state'] = 'readonly'
         combobox.pack(fill=X)
-        print(table)
 
         # ФИО Врача, который проводит осмотр - автоматически
         # Место текущего осмотра - entry
@@ -102,13 +96,14 @@ class mainWindow:
         dateLabel.pack()
         # Симптомы - entry
         Symptoms = ttk.Label(text="Симптомы").pack(anchor=NW)
-        entry1 = ttk.Entry()
-        entry1.pack(fill=X)
+        symptomEntry = ttk.Entry()
+        symptomEntry.pack(fill=X)
         # Диагноз - entry
         Diagnosis = ttk.Label(text="Диагноз").pack(anchor=NW)
-        entry2 = ttk.Entry()
-        entry2.pack(fill=X)
-        # Лекарство - выбор лекарства из бд или добавление нового
+        diagnosEntry = ttk.Entry()
+        diagnosEntry.pack(fill=X)
+
+        # Лекарство - выбор лекарства из бд или добавление нового - чекнуть мб добавить в функцию
         db.cur.execute("SELECT title FROM drug_info ")
         db.connection.commit()
         rows1 = db.cur.fetchall()
@@ -119,8 +114,6 @@ class mainWindow:
         combobox1['values'] = table1
         combobox1['state'] = 'readonly'
         combobox1.pack(fill=X)
-        addDrug = ttk.Button(text= "Добавить новое лекарство", command=self.addNewDrug)
-        addDrug.pack()
         def back(): 
             root.destroy()
             mainWindow()   
@@ -129,12 +122,13 @@ class mainWindow:
             Date = date.today()
             date_stringing = str(Date)
             Doc_FIO = "Доктор"
-            symptoms = entry1.get()
+            symptoms = symptomEntry.get()
             drug_title = combobox1.get()
-            diagnosis = entry2.get()
+            diagnosis = diagnosEntry.get()
             print(FIO, date_stringing, Doc_FIO, symptoms, drug_title, diagnosis)
             db.insertCheckInfo(FIO, date_stringing, Doc_FIO, symptoms, drug_title, diagnosis)
         add_button = ttk.Button(text = "Добавить", command=insertCheck).pack()
+        addDrug = ttk.Button(text= "Добавить новое лекарство", command=self.addNewDrug).pack()
         backButton = ttk.Button(text = "Назад", command=back).pack()
         root.mainloop()
 
@@ -162,60 +156,51 @@ class mainWindow:
         self.root.destroy()
         selectPatients = Tk()
         selectPatients.title('My App')
-        selectPatients.geometry('400x400')
-        dentry = DateEntry()
-        dentry.pack()
-        diagnosisEntry = ttk.Entry(selectPatients)
-        diagnosisEntry.pack(fill=X)
-        drugEntry = ttk.Entry(selectPatients)
-        drugEntry.pack(fill=X)
+        selectPatients.geometry('1920x1080')
+
+        search_methods = {
+            "Дате": "Date",
+            "Диагнозу": "diagnosis",
+            "Лекарству": "title"
+        }
+
+        var = StringVar()
+        search_label = ttk.Label(text="Поиск по").pack(anchor=NW)
+        combobox = ttk.Combobox(textvariable=var, values=list(search_methods.keys()), state='readonly')
+        combobox.pack(fill=X)
+
+        searchEntry = ttk.Entry()
+        searchEntry.pack(fill=X)
+
+        #Таблица
         columns = ("FIO", "Date", "Doc_FIO", "Symptoms", "Drug_title", "diagnosis")
+        drugDescription = ["ФИО", "Дата", "Фамилия врача", "Симптомы", "Лекарство", "Диагноз"]
         tree = ttk.Treeview(columns=columns, show="headings")
         tree.pack(fill=BOTH, expand=1)
-        tree.heading("FIO", text = "ФИО")
-        tree.heading("Date", text = "Дата")
-        tree.heading("Doc_FIO", text = "Фамилия доктора")
-        tree.heading("Symptoms", text = "Симптомы")
-        tree.heading("Drug_title", text = "Лекарство")
-        tree.heading("diagnosis", text = "Диагноз")
-        def checkDate():
-            query = "SELECT * FROM checking WHERE Date = %s "
-            date =  dentry.get_date()
-            date_stringing = str(date)
-            db.cur = db.connection.cursor()
-            db.cur.execute(query, (date_stringing, ))
-            db.connection.commit()
-            rows = db.cur.fetchall()
-            for item in tree.get_children():
-                tree.delete(item)
-            for person in rows:
-                tree.insert('', END, values=person)
-        def checkDiagnosis():
-            query = "SELECT * FROM checking WHERE diagnosis = %s "
-            diagnosisGet = diagnosisEntry.get()
-            db.cur = db.connection.cursor()
-            db.cur.execute(query, (diagnosisGet, ))
-            db.connection.commit()
-            rows = db.cur.fetchall()
-            for item in tree.get_children():
-                tree.delete(item)
-            for person in rows:
-                tree.insert('', END, values=person)
-        def drugEffect():
-            query = "SELECT side_effects FROM drug_info WHERE title = %s "
-            drugEntryGet = drugEntry.get()
-            db.cur = db.connection.cursor()
-            db.cur.execute(query, (drugEntryGet, ))
-            db.connection.commit()
-            rows = db.cur.fetchall()
-            tree.destroy()
-            lbl = ttk.Label(text = rows).pack()
+        for i, description in zip(columns, drugDescription):
+            tree.heading(i, text=description)
+        
+        def searchForAll(): #Разобраться с exception, куда вставлять табличку для лекарств, соединение таблицы лекарств и таблицы проверок
+            selected_method_display=combobox.get()
+            column_name = search_methods.get(selected_method_display)
+            searchAsk = str(searchEntry.get())
+            allowed_columns = ["Date", "diagnosis"]
+            if column_name in allowed_columns:
+                db.selectAll(column_name, (searchAsk, ))
+                rows = db.cur.fetchall()
+                for item in tree.get_children():
+                    tree.delete(item)
+                for person in rows:
+                    tree.insert('', END, values=person)
+            else:
+                query = "SELECT side_effects FROM drug_info WHERE title = %s "
+                db.cur.execute(query, (searchAsk, ))
+                db.connection.commit()
+                rows = db.cur.fetchall()
+                lbl = ttk.Label(text = rows).pack()
         def back():
             selectPatients.destroy()
             mainWindow()
-        dateSearch = ttk.Button(text= "Найти по дате", command=checkDate).pack()
-        diagnosisSearch = ttk.Button(text= "Найти по диагнозу", command=checkDiagnosis).pack()
-        drugEffectSearch = ttk.Button(text= "Найти побочный эффект по лекарству", command=drugEffect).pack()
-        
+        search = ttk.Button(text= "Найти", command=searchForAll).pack()
         back1 = ttk.Button(text="Назад", command=back).pack()
         selectPatients.mainloop
