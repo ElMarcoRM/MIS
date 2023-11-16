@@ -1,23 +1,37 @@
 from tkinter import *
-import psycopg2
 from tkinter import ttk   
 from database import DatabaseAuth
 from tkcalendar import DateEntry
 from datetime import date
 
 db = DatabaseAuth()
+
+
+
 class mainWindow:
     def __init__(self):
         self.root = Tk()
         self.root.title('My App')
         self.root.geometry('1920x1080')
-
+        self.check_session()
         choose = ttk.Label(self.root, text='Выберите действие:').pack()
         add_patients = ttk.Button(self.root, text='Добавить пациента', command=self.register).pack()
         register_checking = ttk.Button(self.root, text='Зарегистрировать осмотр', command=self.register_osmotr).pack()
         statistics = ttk.Button(self.root, text='Посмотреть статистику', command=self.viewAllPatients).pack()
-        self.root.mainloop()
+        exit = ttk.Button(self.root, text = 'Выйти', command = self.log_out).pack()
+        self.root.mainloop()        
     
+    def log_out(self):
+        userID = db.user["id"]
+        db.upd_session(str(userID))
+        db.closing_session()
+        self.root.destroy()      
+    def check_session(self):
+        if db.sel_session_id():
+            self.root.after(1000, self.check_session)  
+        else:
+            self.root.destroy()  
+
     def register(self):
         self.root.destroy()
         root = Tk()

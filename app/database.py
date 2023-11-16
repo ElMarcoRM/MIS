@@ -15,19 +15,36 @@ class DatabaseAuth():
             print("[INFO] Error while working with PostgreSQL", _ex)
             
     def createTable(self):
-        self.cur.execute('''CREATE TABLE IF NOT EXISTS testdata
-                (login TEXT,
+        self.cur.execute('''CREATE TABLE IF NOT EXISTS log
+                (id SERIAL PRIMARY KEY,
+                login TEXT,
                 password TEXT); 
                 ''')
         self.connection.commit()
+    
+    user = {
+        "id": "",
+        "login": "",
+        "password":""
+    }
+
+    def userad(self, data):
+        query = "SELECT * FROM log WHERE login =%s"
+        self.cur.execute(query, data)
+        row = self.cur.fetchall()
+        # print(row)
+        self.user["id"] = row[0][0] # Assuming the ID is the first column in the result
+        self.user["login"] = row[0][1] # Assuming login is the second column
+        self.user["password"] = row[0][2]
+        return self.user
 
     def insertData(self, name, password):
         # Pass = password.encode('utf-8')
-        self.cur.execute("INSERT INTO testdata(login, password) VALUES ('"+name+"', '"+password+"')")
+        self.cur.execute("INSERT INTO log(login, password) VALUES ('"+name+"', '"+password+"')")
         self.connection.commit()
     
     def checkData(self, data, inputData): #data - username, inputdata = username, password
-        query = "SELECT * FROM testdata WHERE login = %s"
+        query = "SELECT login, password FROM log WHERE login = %s"
         self.cur.execute(query, data)
         row = self.cur.fetchall() # login - password
         try:
@@ -38,6 +55,7 @@ class DatabaseAuth():
         except:
             print("Something went wrong")
         self.connection.commit()
+
     def createMainTable(self):
         self.cur.execute('''CREATE TABLE IF NOT EXISTS patients_info
                 (FIO TEXT,
@@ -86,3 +104,48 @@ class DatabaseAuth():
         query = f"SELECT * FROM checking WHERE {column_name} = %s "
         self.cur.execute(query, searchAsk)
         self.connection.commit()
+
+    #____________
+
+
+    def get_user_id(self, data):
+        self.cur = self.connection.cursor()
+        query = "SELECT id FROM log WHERE login = %s "
+        self.cur.execute(query, data)
+        self.connection.commit()
+        user_id = self.cur.fetchone()
+        if user_id:
+            return user_id[0]  # Return the user ID if found
+        else:
+            return None  # Return None if user ID is not found
+        
+    def createActiveSessions(self):
+        self.cur.execute('''CREATE TABLE IF NOT EXISTS active_sessions
+                (session_id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES log(id),
+                active BOOLEAN); 
+                ''')
+        self.connection.commit()
+
+    def upd_session(self, data):
+        query = "UPDATE active_sessions SET active = CASE WHEN active = true THEN false ELSE true END WHERE user_id = %s"
+        self.cur.execute(query, data)
+        self.connection.commit()
+
+    def ins_session(self, userID):
+        userID = str(userID)
+        self.cur.execute("INSERT INTO active_sessions(user_id, active) VALUES ('"+userID+"', true)")
+        self.connection.commit()
+
+    def sel_session_id(self):
+        query = "SELECT * FROM active_sessions"
+        self.cur.execute(query)
+        row = self.cur.fetchall()
+        if row:
+            return row
+
+    def closing_session(self):
+        query = 'DELETE FROM active_sessions WHERE NOT active = TRUE'
+        self.cur.execute(query)
+        self.connection.commit()
+
