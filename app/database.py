@@ -1,5 +1,6 @@
 import psycopg2
 import bcrypt
+from psycopg2 import IntegrityError
 
 class DatabaseAuth():
     def __init__(self):
@@ -14,33 +15,78 @@ class DatabaseAuth():
         except Exception as _ex:
             print("[INFO] Error while working with PostgreSQL", _ex)
             
-    def createTable(self):
-        self.cur.execute('''CREATE TABLE IF NOT EXISTS log
-                (id SERIAL PRIMARY KEY,
-                login TEXT,
-                password TEXT); 
+    def createTables(self):
+        self.cur.execute('''
+                CREATE TABLE IF NOT EXISTS log (
+                    id SERIAL PRIMARY KEY,
+                    login TEXT UNIQUE,
+                    password TEXT UNIQUE,
+                    role TEXT DEFAULT 'user'
+                ); 
+                
+                CREATE TABLE IF NOT EXISTS patients_info ( 
+                    FIO TEXT,
+                    Gender TEXT,
+                    Date_birth DATE,
+                    Address TEXT
+                );
+                
+                CREATE TABLE IF NOT EXISTS drug_info (
+                    title TEXT,
+                    active_substances TEXT,
+                    effect TEXT,
+                    method_of_taking TEXT,
+                    side_effects TEXT
+                );
+
+                CREATE TABLE IF NOT EXISTS checking (
+                    FIO TEXT,
+                    Date DATE,
+                    Doc_FIO TEXT,
+                    Symptoms TEXT,
+                    Drug_title TEXT,
+                    diagnosis TEXT
+                );
                 ''')
+        try:
+            self.default_users()
+        except IntegrityError as e:
+            # Handle the error caused by duplicate entry
+            print(f"Insertion failed: {e}")
         self.connection.commit()
-    
+
     user = {
         "id": "",
         "login": "",
-        "password":""
+        "password":"",
+        "role":""
     }
+
+    def default_users(self):
+        password_word = 'lisafe'
+        bytes = password_word.encode('utf-8') 
+        salt = bcrypt.gensalt()
+        hash = bcrypt.hashpw(bytes, salt)
+        hash1 = hash.decode('utf-8')
+        query = "INSERT INTO log(login, password, role) VALUES ('tamara', '"+hash1+"', 'admin')"
+        self.cur.execute(query)
+        self.connection.commit()
 
     def userad(self, data):
         query = "SELECT * FROM log WHERE login =%s"
         self.cur.execute(query, data)
         row = self.cur.fetchall()
-        # print(row)
-        self.user["id"] = row[0][0] # Assuming the ID is the first column in the result
-        self.user["login"] = row[0][1] # Assuming login is the second column
-        self.user["password"] = row[0][2]
+        if row[0][3] == 'user':
+            self.user["id"] = row[0][0] # Assuming the ID is the first column in the result
+            self.user["login"] = row[0][1] # Assuming login is the second column
+            self.user["password"] = row[0][2]
+            self.user["role"] = row[0][3]
+        else:
+            print('admin')
         return self.user
 
-    def insertData(self, name, password):
-        # Pass = password.encode('utf-8')
-        self.cur.execute("INSERT INTO log(login, password) VALUES ('"+name+"', '"+password+"')")
+    def insertData(self, name, password,role):
+        self.cur.execute("INSERT INTO log(login, password, role) VALUES ('"+name+"', '"+password+"', '"+role+"')")
         self.connection.commit()
     
     def checkData(self, data, inputData): #data - username, inputdata = username, password
@@ -56,40 +102,14 @@ class DatabaseAuth():
             print("Something went wrong")
         self.connection.commit()
 
-    def createMainTable(self):
-        self.cur.execute('''CREATE TABLE IF NOT EXISTS patients_info
-                (FIO TEXT,
-                Gender TEXT,
-                Date_birth DATE,
-                Address TEXT); 
-                ''')
-        self.connection.commit()
     def insertPatientsData(self, FIO, Gender, Date, Address):
         self.cur.execute("INSERT INTO patients_info(FIO, Gender, Date_birth, Address) VALUES ('"+FIO+"', '"+Gender+"', '"+Date+"', '"+Address+"')")
         self.connection.commit()
-    def createDrugTable(self):
-        self.cur.execute('''CREATE TABLE IF NOT EXISTS drug_info
-                (title TEXT,
-                active_substances TEXT,
-                effect TEXT,
-                method_of_taking TEXT,
-                side_effects TEXT); 
-                ''')
-        self.connection.commit()
+    
     def insertDrugInfo(self, title, active_substance, effect, meethod_of_taking, side_effects):
         self.cur.execute("INSERT INTO drug_info(title, active_substances, effect, method_of_taking, side_effects) VALUES ('"+title+"', '"+active_substance+"', '"+effect+"', '"+meethod_of_taking+"', '"+side_effects+"')")
         self.connection.commit()
 
-    def createCheckTable(self): #Таблица осмотров
-        self.cur.execute('''CREATE TABLE IF NOT EXISTS checking
-                (FIO TEXT,
-                Date DATE,
-                Doc_FIO TEXT,
-                Symptoms TEXT,
-                Drug_title TEXT,
-                diagnosis TEXT); 
-                ''')
-        self.connection.commit()
     def insertCheckInfo(self, FIO, Date, Doc_FIO, Symptoms, Drug_title, diagnosis):
         self.cur.execute("INSERT INTO checking(FIO, Date, Doc_FIO, Symptoms, Drug_title, diagnosis) VALUES ('"+FIO+"', '"+Date+"', '"+Doc_FIO+"', '"+Symptoms+"', '"+Drug_title+"', '"+diagnosis+"')")
         self.connection.commit()
@@ -99,6 +119,8 @@ class DatabaseAuth():
         self.cur = self.connection.cursor()
         self.cur.execute("SELECT FIO FROM patients_info")
         self.connection.commit()
+        rows = self.cur.fetchall()
+        return rows
     def selectAll(self, column_name, searchAsk):
         self.cur = self.connection.cursor()
         query = f"SELECT * FROM checking WHERE {column_name} = %s "
@@ -143,9 +165,20 @@ class DatabaseAuth():
         row = self.cur.fetchall()
         if row:
             return row
+    def sel_session_id2(self):
+        query = "SELECT user_id FROM active_sessions"
+        self.cur.execute(query)
+        row = self.cur.fetchall()
+        if row:
+            return row
 
     def closing_session(self):
         query = 'DELETE FROM active_sessions WHERE NOT active = TRUE'
         self.cur.execute(query)
         self.connection.commit()
 
+    def sel_role(self, login):
+        query = "SELECT role FROM log WHERE login = %s"
+        self.cur.execute(query, login)
+        row = self.cur.fetchone()
+        return row[0]
