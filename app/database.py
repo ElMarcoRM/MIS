@@ -47,11 +47,10 @@ class DatabaseAuth():
                     Drug_title TEXT,
                     diagnosis TEXT
                 );
-                ''')
+            ''')
         try:
             self.default_users()
         except IntegrityError as e:
-            # Handle the error caused by duplicate entry
             print(f"Insertion failed: {e}")
         self.connection.commit()
 
@@ -77,8 +76,8 @@ class DatabaseAuth():
         self.cur.execute(query, data)
         row = self.cur.fetchall()
         if row[0][3] == 'user':
-            self.user["id"] = row[0][0] # Assuming the ID is the first column in the result
-            self.user["login"] = row[0][1] # Assuming login is the second column
+            self.user["id"] = row[0][0]
+            self.user["login"] = row[0][1]
             self.user["password"] = row[0][2]
             self.user["role"] = row[0][3]
         else:
@@ -127,9 +126,6 @@ class DatabaseAuth():
         self.cur.execute(query, searchAsk)
         self.connection.commit()
 
-    #____________
-
-
     def get_user_id(self, data):
         self.cur = self.connection.cursor()
         query = "SELECT id FROM log WHERE login = %s "
@@ -137,9 +133,9 @@ class DatabaseAuth():
         self.connection.commit()
         user_id = self.cur.fetchone()
         if user_id:
-            return user_id[0]  # Return the user ID if found
+            return user_id[0]
         else:
-            return None  # Return None if user ID is not found
+            return None
         
     def createActiveSessions(self):
         self.cur.execute('''CREATE TABLE IF NOT EXISTS active_sessions

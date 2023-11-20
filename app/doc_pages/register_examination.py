@@ -13,8 +13,12 @@ class RegisterExamination:
         root.title('My App')
         root.geometry('1920x1080')
 
-        db.createTables()
-        # self.check_session()
+        def check(root):
+            from main import check_session
+            check_session(root)
+
+        root.after(5000, check, root)
+
 
         # выбор пациента, которого внесли в бд до этого
         rows = db.selectPatients()
@@ -95,7 +99,7 @@ class RegisterExamination:
         def add_drug():
             drug_info = [entry.get() for entry in drugEntries]
             db.insertDrugInfo(*drug_info)  
-            
+
         addDrug = ttk.Button(addingDrugWin, text = "Добавить", command=add_drug)
         addDrug.pack()
         backToRegister = ttk.Button(addingDrugWin, text="Назад", command=addingDrugWin.destroy).pack()

@@ -13,8 +13,6 @@ class Register_patients:
         root.title('My App')
         root.geometry('1920x1080')
 
-        db.createTables()
-
         register_new_patients = ttk.Label(root, text='Регистрация нового пациента').pack()
         fioFrame = ttk.Frame(borderwidth=1, relief=SOLID, padding=[8, 10]).pack(anchor=NW, fill=X, padx=5, pady=5)
         FIO = ["Фамилия", "Имя", "Отчество"]

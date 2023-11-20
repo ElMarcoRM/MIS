@@ -6,6 +6,7 @@ from datetime import date
 
 
 db = DatabaseAuth()
+
 class Statistics:
     def __init__(self, root):
         self.root = root
@@ -27,15 +28,18 @@ class Statistics:
         searchEntry = ttk.Entry()
         searchEntry.pack(fill=X)
 
-        #Таблица
-        columns = ("FIO", "Date", "Doc_FIO", "Symptoms", "Drug_title", "diagnosis")
-        drugDescription = ["ФИО", "Дата", "Фамилия врача", "Симптомы", "Лекарство", "Диагноз"]
-        tree = ttk.Treeview(root, columns=columns, show="headings")
+        #Таблица    
+        users_columns = ("FIO", "Date", "Doc_FIO", "Symptoms", "Drug_title", "diagnosis")
+        users_descriptions = ["ФИО", "Дата", "Фамилия врача", "Симптомы", "Лекарство", "Диагноз"]
+        drug_columns = ("title", "side_effects")
+        drug_descriptions = ["Название", "Побочные эффекты"]
+
+        tree = ttk.Treeview(root, columns=users_columns, show="headings")
         tree.pack(fill=BOTH, expand=1)
-        for i, description in zip(columns, drugDescription):
-            tree.heading(i, text=description)
-        
-        def searchForAll(): #Разобраться с exception, куда вставлять табличку для лекарств, соединение таблицы лекарств и таблицы проверок
+        for i, description in zip(users_columns, users_descriptions):
+                tree.heading(i, text=description)
+
+        def searchForAll():
             selected_method_display=combobox.get()
             column_name = search_methods.get(selected_method_display)
             searchAsk = str(searchEntry.get())
@@ -44,16 +48,24 @@ class Statistics:
             if column_name in allowed_columns:
                 db.selectAll(column_name, (searchAsk, ))
                 rows = db.cur.fetchall()
-                for item in tree.get_children():
-                    tree.delete(item)
-                for person in rows:
-                    tree.insert('', END, values=person)
+                update_table(users_columns, users_descriptions, rows)
             else:
-                query = "SELECT side_effects FROM drug_info WHERE title = %s "
+                query = "SELECT title, side_effects FROM drug_info WHERE title = %s "
                 db.cur.execute(query, (searchAsk, ))
                 db.connection.commit()
                 rows = db.cur.fetchall()
-                lbl = ttk.Label(text = rows).pack()
+                update_table(drug_columns, drug_descriptions, rows)
+
+        def update_table(columns, descriptions, rows):
+            for col in tree.get_children():
+                tree.delete(col)
+
+            tree["columns"] = columns
+            for idx, (col, desc) in enumerate(zip(columns, descriptions)):
+                tree.heading(col, text=desc)
+                tree.column(col, anchor='center', width=100)
+            for person in rows:
+                tree.insert('', END, values=person)
 
         def back():
             from main import main
@@ -72,5 +84,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

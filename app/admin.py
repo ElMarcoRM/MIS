@@ -39,8 +39,7 @@ class AdminPanel:
         def back():
             root.destroy()
             AdminPanel()
-            
-
+ 
         signInTXT = Label(root, text='Зарегистрировать нового пользователя').pack()
         usernameInput = Entry(root)
         passwordInput = Entry(root)
