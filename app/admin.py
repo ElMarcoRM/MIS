@@ -17,9 +17,11 @@ class AdminPanel:
         self.refresh_button = Button(self.root, text="Refresh", command=self.show_active_sessions)
         self.terminate_button = Button(self.root, text="Terminate Session", command=self.terminate_session)
         self.register_new_user = Button(self.root, text = "Регистрация нового пользователя", command = self.register_new_users).pack()
+        self.back_button = Button(self.root, text = "Назад", command=self.back)
         self.terminate_button.pack()
         self.session_listbox.pack()
         self.refresh_button.pack()
+        self.back_button.pack()
 
     def register_new_users(self):
         self.root.destroy()
@@ -71,3 +73,9 @@ class AdminPanel:
             db.closing_session()
             print(f"Terminated session: {selected_session}")
             self.active_sessions.remove(selected_session)
+    
+    def back(self):
+        from auth import Auth
+        self.root.destroy()
+        Auth(self.root)
+        
