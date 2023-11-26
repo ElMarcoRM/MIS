@@ -13,7 +13,8 @@ def check_session(root):
 
 def main():
     root = Tk()
-    root.title('My App')
+    root.title('Main page')
+    root.geometry('400x400')
 
     def open_screen(screen_class):
         root.destroy()
