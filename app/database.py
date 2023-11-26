@@ -19,6 +19,7 @@ class DatabaseAuth():
         self.cur.execute('''
                 CREATE TABLE IF NOT EXISTS log (
                     id SERIAL PRIMARY KEY,
+                    FIO TEXT,
                     login TEXT UNIQUE,
                     password TEXT UNIQUE,
                     role TEXT DEFAULT 'user'
@@ -56,6 +57,7 @@ class DatabaseAuth():
 
     user = {
         "id": "",
+        "FIO": "",
         "login": "",
         "password":"",
         "role":""
@@ -67,7 +69,7 @@ class DatabaseAuth():
         salt = bcrypt.gensalt()
         hash = bcrypt.hashpw(bytes, salt)
         hash1 = hash.decode('utf-8')
-        query = "INSERT INTO log(login, password, role) VALUES ('tamara', '"+hash1+"', 'admin')"
+        query = "INSERT INTO log(FIO, login, password, role) VALUES ('Lisafeva Tamara Andreevna', 'tamara', '"+hash1+"', 'admin')"
         self.cur.execute(query)
         self.connection.commit()
 
@@ -75,17 +77,18 @@ class DatabaseAuth():
         query = "SELECT * FROM log WHERE login =%s"
         self.cur.execute(query, data)
         row = self.cur.fetchall()
-        if row[0][3] == 'user':
+        if row[0][4] == 'user':
             self.user["id"] = row[0][0]
-            self.user["login"] = row[0][1]
-            self.user["password"] = row[0][2]
-            self.user["role"] = row[0][3]
+            self.user["FIO"] = row[0][1]
+            self.user["login"] = row[0][2]
+            self.user["password"] = row[0][3]
+            self.user["role"] = row[0][4]
         else:
             print('admin')
         return self.user
 
-    def insertData(self, name, password,role):
-        self.cur.execute("INSERT INTO log(login, password, role) VALUES ('"+name+"', '"+password+"', '"+role+"')")
+    def insertData(self,FIO, name, password, role):
+        self.cur.execute("INSERT INTO log(FIO, login, password, role) VALUES ('"+FIO+"', '"+name+"', '"+password+"', '"+role+"')")
         self.connection.commit()
     
     def checkData(self, data, inputData): #data - username, inputdata = username, password

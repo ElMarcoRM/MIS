@@ -1,9 +1,9 @@
 from tkinter import *
+from tkinter import ttk   
 from database import DatabaseAuth
-db = DatabaseAuth()
 import bcrypt
 
-
+db = DatabaseAuth()
 
 class AdminPanel:
     def __init__(self):
@@ -28,6 +28,8 @@ class AdminPanel:
         root.geometry('400x400')
 
         def register():
+            FIO_info = [fioEntry.get() for fioEntry in FIO_entries]
+            FIO_to_string = ', '.join(FIO_info)
             nameGet = usernameInput.get()
             passwordGet = passwordInput.get()
             role = selected_role.get()
@@ -35,21 +37,31 @@ class AdminPanel:
             salt = bcrypt.gensalt()
             hash = bcrypt.hashpw(bytes, salt)
             hash1 = hash.decode('utf-8')
-            db.insertData(nameGet, hash1, role)
+            db.insertData(FIO_to_string, nameGet, hash1, role)
+
         def back():
             root.destroy()
             AdminPanel()
  
         signInTXT = Label(root, text='Зарегистрировать нового пользователя').pack()
+        FIO = ["Фамилия", "Имя", "Отчество"]
+        FIO_entries = []
+        for i in FIO:
+            FIO_label = Label(text=i).pack(anchor=NW)
+            fioEntry = Entry()
+            fioEntry.pack(fill=X)
+            FIO_entries.append(fioEntry)
         usernameInput = Entry(root)
         passwordInput = Entry(root)
         usernameInput.pack()
         passwordInput.pack()
+
         selected_role = StringVar()
-        admin_role = Radiobutton(root, text="Админ", value="admin", variable=selected_role)
+        admin_role = ttk.Radiobutton(text="Администратор", value="admin", variable=selected_role)
         admin_role.pack()
-        user_role = Radiobutton(root, text="Юзер", value="user", variable=selected_role)
+        user_role = ttk.Radiobutton(text="Пользователь", value="user", variable=selected_role)
         user_role.pack()
+
         register_but = Button(root, text = 'Зарегистрировать', command=register).pack()
         backB = Button(root, text = "Назад", command=back).pack()
 

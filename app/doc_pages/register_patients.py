@@ -4,7 +4,6 @@ from database import DatabaseAuth
 from tkcalendar import DateEntry
 from datetime import date
 
-
 db = DatabaseAuth()
 class Register_patients:
     def __init__(self, root):
@@ -71,5 +70,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

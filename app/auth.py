@@ -53,4 +53,3 @@ signIn = Button(logFrame, text='Войти', command=check)
 signIn.pack()
 
 root.mainloop()
-

@@ -16,9 +16,7 @@ class RegisterExamination:
         def check(root):
             from main import check_session
             check_session(root)
-
         root.after(5000, check, root)
-
 
         # выбор пациента, которого внесли в бд до этого
         rows = db.selectPatients()
@@ -31,7 +29,7 @@ class RegisterExamination:
         combobox.pack(fill=X)
 
         # ФИО Врача, который проводит осмотр - автоматически
-        doc_name = db.user["login"]
+        doc_name = db.user["FIO"]
         doc_FIO = ttk.Label(root, text = doc_name).pack()
         # Место текущего осмотра - entry
         # Дата и время - автоматически
