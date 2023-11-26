@@ -170,6 +170,11 @@ class DatabaseAuth():
         row = self.cur.fetchall()
         if row:
             return row
+    def select_drug_title(self):
+        self.cur.execute("SELECT title FROM drug_info ")
+        self.connection.commit()
+        row = self.cur.fetchall()
+        return row
 
     def closing_session(self):
         query = 'DELETE FROM active_sessions WHERE NOT active = TRUE'

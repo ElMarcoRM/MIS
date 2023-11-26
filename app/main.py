@@ -1,14 +1,14 @@
+from tkinter import *
 from tkinter import Tk, ttk
 from doc_pages import register_examination, register_patients, statisctics
 from database import DatabaseAuth
-import time
+
 db = DatabaseAuth()
 
 def check_session(root):
     if db.sel_session_id:
         root.after(5000, check_session, root)     
     else:
-        print('root destroyed')
         root.destroy()  
 
 def main():
@@ -24,17 +24,21 @@ def main():
         userID = db.user["id"]
         db.upd_session(str(userID))
         db.closing_session()
-        root.destroy()   
+        root.destroy()
     
-    doctor_button = ttk.Button(root, text='Добавить пациента', command=lambda: open_screen(register_patients.Register_patients))
-    doctor_button.pack()
-    register_examination_button = ttk.Button(root, text = 'Зарегистрировать осмотр', command = lambda: open_screen(register_examination.RegisterExamination))
-    register_examination_button.pack()
-    statistics_button = ttk.Button(root, text = 'Посмотреть статистику', command = lambda: open_screen(statisctics.Statistics))
-    statistics_button.pack()
-    exit = ttk.Button(root, text = 'Выйти', command = log_out).pack()
-    root.after(5000, check_session, root)
+    Frame = ttk.Frame(borderwidth=1, relief=SOLID, padding=[10,5])
+    Frame.place(relx=0.5, rely=0.3, anchor=CENTER)
 
+    button_frame = ttk.Frame(Frame)
+    button_frame.pack(side='top', pady=5)
+    
+    fio_lbl = ttk.Label(button_frame, text = "Вы вошли как: " + db.user["FIO"]).pack(fill='x')
+    doctor_button = ttk.Button(button_frame, text='Добавить пациента', command=lambda: open_screen(register_patients.Register_patients)).pack(fill='x')
+    register_examination_button = ttk.Button(button_frame, text='Зарегистрировать осмотр', command = lambda: open_screen(register_examination.RegisterExamination)).pack(fill='x')
+    statistics_button = ttk.Button(button_frame, text='Посмотреть статистику', command = lambda: open_screen(statisctics.Statistics)).pack(fill='x')
+    exit = ttk.Button(button_frame, text = 'Выйти', command = log_out).pack(fill='x')
+
+    root.after(5000, check_session, root)
     root.mainloop()
 
 if __name__ == "__main__":

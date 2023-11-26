@@ -12,37 +12,47 @@ class Register_patients:
         root.title('My App')
         root.geometry('1920x1080')
 
-        register_new_patients = ttk.Label(root, text='Регистрация нового пациента').pack()
-        fioFrame = ttk.Frame(borderwidth=1, relief=SOLID, padding=[8, 10]).pack(anchor=NW, fill=X, padx=5, pady=5)
+        Frame = ttk.Frame(borderwidth=1, relief=SOLID, padding=[10,10])
+        Frame.place(relx=0.5, rely=0.3, anchor=CENTER)
+
+        register_new_patients = ttk.Label(Frame, text='Регистрация нового пациента').pack()
+        fio_frame = ttk.Frame(Frame)
+        fio_frame.pack(pady=5)
         FIO = ["Фамилия", "Имя", "Отчество"]
         FIO_entries = []
-
         for i in FIO:
-            FIO_label = ttk.Label(fioFrame, text=i).pack(anchor=NW)
-            fioEntry = ttk.Entry(fioFrame)
-            fioEntry.pack(fill=X)
+            FIO_label = ttk.Label(fio_frame, text=i).pack(anchor=NW, side=LEFT)
+            fioEntry = ttk.Entry(fio_frame)
+            fioEntry.pack(fill=X, side=LEFT)
             FIO_entries.append(fioEntry)
-
-        selected_gender = StringVar()
-        gender_male = ttk.Radiobutton(text="Мужской", value="male", variable=selected_gender)
-        gender_male.pack()
-        gender_female = ttk.Radiobutton(text="Женский", value="female", variable=selected_gender)
-        gender_female.pack()
         
-        birth_date = ttk.Label(root, text="Введите дату рождения").pack()
-        dentry = DateEntry(root)
-        dentry.pack()
-        
-        addressFrame = ttk.Frame(borderwidth=1, relief=SOLID,padding=[8, 10]).pack(anchor=NW, fill=X, padx=5, pady=5)
         address = ["Город", "Улица", "Дом", "Корпус", "Квартира"]
         address_entries = []
         
+        address_frame = ttk.Frame(Frame)
+        address_frame.pack(pady=5)
         for i in address:
-            address_label = ttk.Label(addressFrame, text=i).pack(anchor=NW)
-            addressEntry = ttk.Entry(addressFrame)
-            addressEntry.pack(fill=X)
+            address_label = ttk.Label(address_frame, text=i).pack(side=LEFT)
+            addressEntry = ttk.Entry(address_frame)
+            addressEntry.pack(fill=X, side=LEFT)
             address_entries.append(addressEntry)
 
+        radio_frame = ttk.Frame(Frame)
+        radio_frame.pack(pady=5)
+
+        selected_gender = StringVar()
+        gender_male = ttk.Radiobutton(radio_frame, text="Мужской", value="male", variable=selected_gender)
+        gender_male.pack(side=LEFT)
+        gender_female = ttk.Radiobutton(radio_frame, text="Женский", value="female", variable=selected_gender)
+        gender_female.pack(side=LEFT)
+        
+        date_frame = ttk.Frame(Frame)
+        date_frame.pack(pady=5)
+
+        birth_date = ttk.Label(date_frame, text="Введите дату рождения").pack(side=LEFT)
+        dentry = DateEntry(date_frame)
+        dentry.pack(side=LEFT)
+        
         def add_patients():
             date =  dentry.get_date()
             date_stringing = str(date)
@@ -58,8 +68,11 @@ class Register_patients:
             root.destroy()
             main()
 
-        addPatient = ttk.Button(text = "Добавить пациента", command=add_patients).pack()
-        backButton = ttk.Button(text = "Назад", command=back).pack()
+        button_frame = ttk.Frame(Frame)
+        button_frame.pack(pady=5)
+
+        addPatient = ttk.Button(button_frame, text = "Добавить пациента", command=add_patients).pack(side=LEFT)
+        backButton = ttk.Button(button_frame, text = "Назад", command=back).pack(side=LEFT)
         root.mainloop()
 
 def main():

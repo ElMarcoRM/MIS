@@ -4,8 +4,8 @@ from database import DatabaseAuth
 from tkcalendar import DateEntry
 from datetime import date
 
-
 db = DatabaseAuth()
+
 class RegisterExamination:
     def __init__(self, root):
         self.root = root
@@ -19,14 +19,14 @@ class RegisterExamination:
         root.after(5000, check, root)
 
         # выбор пациента, которого внесли в бд до этого
-        rows = db.selectPatients()
-        table = [' '.join(inner) for inner in rows]
-        choosePatient = ttk.Label(text = "Выберите пациента").pack(anchor=NW)
+        patients_results = db.selectPatients()
+        table_patients = [' '.join(inner) for inner in patients_results]
+        choose_patient = ttk.Label(text = "Выберите пациента:").pack(anchor=NW)
         var = StringVar()
-        combobox=ttk.Combobox(root, textvariable=var)
-        combobox['values'] = table
-        combobox['state'] = 'readonly'
-        combobox.pack(fill=X)
+        choose_patient_combobox=ttk.Combobox(root, textvariable=var)
+        choose_patient_combobox['values'] = table_patients
+        choose_patient_combobox['state'] = 'readonly'
+        choose_patient_combobox.pack(fill=X)
 
         # ФИО Врача, который проводит осмотр - автоматически
         doc_name = db.user["FIO"]
@@ -46,16 +46,14 @@ class RegisterExamination:
         diagnosEntry.pack(fill=X)
 
         # Лекарство - выбор лекарства из бд или добавление нового - чекнуть мб добавить в функцию
-        db.cur.execute("SELECT title FROM drug_info ")
-        db.connection.commit()
-        rows1 = db.cur.fetchall()
-        table1 = [' '.join(inner) for inner in rows1]
+        drug_results = db.select_drug_title()
+        table_drug = [' '.join(inner) for inner in drug_results]
         var1 = StringVar()
-        drugCheck = ttk.Label(text = "Лекарство").pack(anchor=NW)
-        combobox1=ttk.Combobox(root, textvariable=var1)
-        combobox1['values'] = table1
-        combobox1['state'] = 'readonly'
-        combobox1.pack(fill=X)
+        drug_check = ttk.Label(text = "Лекарство").pack(anchor=NW)
+        choose_drug=ttk.Combobox(root, textvariable=var1)
+        choose_drug['values'] = table_drug
+        choose_drug['state'] = 'readonly'
+        choose_drug.pack(fill='x')
 
         def back():
             from main import main
@@ -63,12 +61,12 @@ class RegisterExamination:
             main()
 
         def insertCheck():
-            FIO = combobox.get()
+            FIO = choose_patient_combobox.get()
             Date = date.today()
             date_stringing = str(Date)
-            Doc_FIO = db.user["login"]
+            Doc_FIO = db.user["FIO"]
             symptoms = symptomEntry.get()
-            drug_title = combobox1.get()
+            drug_title = choose_drug.get()
             diagnosis = diagnosEntry.get()
             print(FIO, date_stringing, Doc_FIO, symptoms, drug_title, diagnosis)
             db.insertCheckInfo(FIO, date_stringing, Doc_FIO, symptoms, drug_title, diagnosis)
