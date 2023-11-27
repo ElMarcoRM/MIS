@@ -15,26 +15,30 @@ class Register_patients:
         Frame = ttk.Frame(borderwidth=1, relief=SOLID, padding=[10,10])
         Frame.place(relx=0.5, rely=0.3, anchor=CENTER)
 
+    
         register_new_patients = ttk.Label(Frame, text='Регистрация нового пациента').pack()
-        fio_frame = ttk.Frame(Frame)
-        fio_frame.pack(pady=5)
+        entry_frame = ttk.Frame(Frame)
+        entry_frame.pack()
+        fio_frame = ttk.Frame(entry_frame)
+        fio_frame.pack(side=LEFT, padx=5)
+
         FIO = ["Фамилия", "Имя", "Отчество"]
         FIO_entries = []
         for i in FIO:
-            FIO_label = ttk.Label(fio_frame, text=i).pack(anchor=NW, side=LEFT)
+            FIO_label = ttk.Label(fio_frame, text=i).pack()
             fioEntry = ttk.Entry(fio_frame)
-            fioEntry.pack(fill=X, side=LEFT)
+            fioEntry.pack(fill='x')
             FIO_entries.append(fioEntry)
         
         address = ["Город", "Улица", "Дом", "Корпус", "Квартира"]
         address_entries = []
         
-        address_frame = ttk.Frame(Frame)
-        address_frame.pack(pady=5)
+        address_frame = ttk.Frame(entry_frame)
+        address_frame.pack(side=RIGHT, padx=5)
         for i in address:
-            address_label = ttk.Label(address_frame, text=i).pack(side=LEFT)
+            address_label = ttk.Label(address_frame, text=i).pack()
             addressEntry = ttk.Entry(address_frame)
-            addressEntry.pack(fill=X, side=LEFT)
+            addressEntry.pack(fill='x')
             address_entries.append(addressEntry)
 
         radio_frame = ttk.Frame(Frame)
@@ -49,7 +53,7 @@ class Register_patients:
         date_frame = ttk.Frame(Frame)
         date_frame.pack(pady=5)
 
-        birth_date = ttk.Label(date_frame, text="Введите дату рождения").pack(side=LEFT)
+        birth_date = ttk.Label(date_frame, text="Введите дату рождения:").pack(side=LEFT, padx=5)
         dentry = DateEntry(date_frame)
         dentry.pack(side=LEFT)
         
@@ -71,7 +75,7 @@ class Register_patients:
         button_frame = ttk.Frame(Frame)
         button_frame.pack(pady=5)
 
-        addPatient = ttk.Button(button_frame, text = "Добавить пациента", command=add_patients).pack(side=LEFT)
+        addPatient = ttk.Button(button_frame, text = "Добавить пациента", command=add_patients).pack(side=LEFT, padx=5)
         backButton = ttk.Button(button_frame, text = "Назад", command=back).pack(side=LEFT)
         root.mainloop()
 

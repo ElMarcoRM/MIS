@@ -4,7 +4,6 @@ from database import DatabaseAuth
 from tkcalendar import DateEntry
 from datetime import date
 
-
 db = DatabaseAuth()
 
 class Statistics:
@@ -72,8 +71,11 @@ class Statistics:
             root.destroy()
             main()
 
-        search = ttk.Button(text= "Найти", command=searchForAll).pack()
-        back1 = ttk.Button(text="Назад", command=back).pack()
+        Frame = ttk.Frame()
+        Frame.pack()
+
+        search = ttk.Button(Frame, text= "Найти", command=searchForAll).pack(side=LEFT)
+        back1 = ttk.Button(Frame, text="Назад", command=back).pack(side=LEFT)
         root.mainloop()
         
 def main():
