@@ -18,14 +18,19 @@ class Statistics:
             "Диагнозу": "diagnosis",
             "Лекарству": "title"
         }
+        Frame = ttk.Frame(borderwidth=1, relief=SOLID)
+        Frame.place(relx=0.5, rely=0.3, anchor=CENTER)
+        
+        search_frame = ttk.Frame(Frame)
+        search_frame.pack(fill='x')
 
         var = StringVar()
-        search_label = ttk.Label(root, text="Поиск по").pack(anchor=NW)
-        combobox = ttk.Combobox(root, textvariable=var, values=list(search_methods.keys()), state='readonly')
-        combobox.pack(fill=X)
+        search_label = ttk.Label(search_frame, text="Поиск по:").pack(anchor=NW, side=LEFT, padx=5)
+        combobox = ttk.Combobox(search_frame, textvariable=var, values=list(search_methods.keys()), state='readonly')
+        combobox.pack(fill=X, side=LEFT, expand=TRUE, padx=5)
 
-        searchEntry = ttk.Entry()
-        searchEntry.pack(fill=X)
+        searchEntry = ttk.Entry(search_frame)
+        searchEntry.pack(fill=X, side=LEFT, expand=TRUE)
 
         #Таблица    
         users_columns = ("FIO", "Date", "Doc_FIO", "Symptoms", "Drug_title", "diagnosis")
@@ -33,7 +38,7 @@ class Statistics:
         drug_columns = ("title", "side_effects")
         drug_descriptions = ["Название", "Побочные эффекты"]
 
-        tree = ttk.Treeview(root, columns=users_columns, show="headings")
+        tree = ttk.Treeview(Frame, columns=users_columns, show="headings")
         tree.pack(fill=BOTH, expand=1)
         for i, description in zip(users_columns, users_descriptions):
                 tree.heading(i, text=description)
@@ -71,11 +76,11 @@ class Statistics:
             root.destroy()
             main()
 
-        Frame = ttk.Frame()
-        Frame.pack()
+        button_frame = ttk.Frame(Frame)
+        button_frame.pack()
 
-        search = ttk.Button(Frame, text= "Найти", command=searchForAll).pack(side=LEFT)
-        back1 = ttk.Button(Frame, text="Назад", command=back).pack(side=LEFT)
+        search = ttk.Button(button_frame, text= "Найти", command=searchForAll).pack(side=LEFT)
+        back1 = ttk.Button(button_frame, text="Назад", command=back).pack(side=LEFT)
         root.mainloop()
         
 def main():

@@ -43,12 +43,14 @@ class DatabaseAuth():
                 CREATE TABLE IF NOT EXISTS checking (
                     FIO TEXT,
                     Date DATE,
+                    Address TEXT,
                     Doc_FIO TEXT,
                     Symptoms TEXT,
                     Drug_title TEXT,
                     diagnosis TEXT
                 );
             ''')
+        self.connection.commit()
         try:
             self.default_users()
         except IntegrityError as e:
@@ -112,8 +114,8 @@ class DatabaseAuth():
         self.cur.execute("INSERT INTO drug_info(title, active_substances, effect, method_of_taking, side_effects) VALUES ('"+title+"', '"+active_substance+"', '"+effect+"', '"+meethod_of_taking+"', '"+side_effects+"')")
         self.connection.commit()
 
-    def insertCheckInfo(self, FIO, Date, Doc_FIO, Symptoms, Drug_title, diagnosis):
-        self.cur.execute("INSERT INTO checking(FIO, Date, Doc_FIO, Symptoms, Drug_title, diagnosis) VALUES ('"+FIO+"', '"+Date+"', '"+Doc_FIO+"', '"+Symptoms+"', '"+Drug_title+"', '"+diagnosis+"')")
+    def insertCheckInfo(self, FIO, Date, Address, Doc_FIO, Symptoms, Drug_title, diagnosis):
+        self.cur.execute("INSERT INTO checking(FIO, Date, Address, Doc_FIO, Symptoms, Drug_title, diagnosis) VALUES ('"+FIO+"', '"+Date+"', '"+Address+"', '"+Doc_FIO+"', '"+Symptoms+"', '"+Drug_title+"', '"+diagnosis+"')")
         self.connection.commit()
     
     #Select - выбор пациента, которого внесли до этого

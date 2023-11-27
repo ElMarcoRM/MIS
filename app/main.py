@@ -5,11 +5,12 @@ from database import DatabaseAuth
 
 db = DatabaseAuth()
 
-def check_session(root):
-    if db.sel_session_id:
-        root.after(5000, check_session, root)     
+def check_session(root, check_flag):
+    if check_flag and db.sel_session_id():
+        root.after(5000, check_session, root, check_flag)     
     else:
-        root.destroy()  
+        if check_flag:
+            root.destroy() 
 
 def main():
     root = Tk()
@@ -38,7 +39,7 @@ def main():
     statistics_button = ttk.Button(button_frame, text='Посмотреть статистику', command = lambda: open_screen(statisctics.Statistics)).pack(fill='x')
     exit = ttk.Button(button_frame, text = 'Выйти', command = log_out).pack(fill='x')
 
-    root.after(5000, check_session, root)
+    check_session(root, True)
     root.mainloop()
 
 if __name__ == "__main__":

@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter import ttk   
 from database import DatabaseAuth
 from tkcalendar import DateEntry
-from datetime import date
 
 db = DatabaseAuth()
 class Register_patients:
@@ -14,7 +13,6 @@ class Register_patients:
 
         Frame = ttk.Frame(borderwidth=1, relief=SOLID, padding=[10,10])
         Frame.place(relx=0.5, rely=0.3, anchor=CENTER)
-
     
         register_new_patients = ttk.Label(Frame, text='Регистрация нового пациента').pack()
         entry_frame = ttk.Frame(Frame)
@@ -54,7 +52,7 @@ class Register_patients:
         date_frame.pack(pady=5)
 
         birth_date = ttk.Label(date_frame, text="Введите дату рождения:").pack(side=LEFT, padx=5)
-        dentry = DateEntry(date_frame)
+        dentry = DateEntry(date_frame, date_pattern='dd/mm/yy')
         dentry.pack(side=LEFT)
         
         def add_patients():
